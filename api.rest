@@ -1,0 +1,12 @@
+POST http://localhost:4000/api/v1/users/signup
+Content-Type: application/json
+
+{
+    "username" : "karim",
+    "password" : "karim123",
+    "email" : "karim123456@karim.com",
+    "role" : "admin"
+}
+###
+GET http://localhost:4000/api/v1/users/670aac1c977c4d65a6aa7d76
+Content-Type: application/json
