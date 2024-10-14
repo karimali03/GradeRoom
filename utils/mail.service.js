@@ -4,10 +4,12 @@ class mailService {
 
     constructor(){
           this.transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com', 
+            port: 465, 
+            secure: true, 
             auth: {
               user: process.env.EMAIL_USER, 
-              pass: process.env.EMAIL_PASS  
+              pass: process.env.APP_PASS  
             }
           });
     }
@@ -17,7 +19,7 @@ class mailService {
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: toEmail,
-          subject: 'Email Verification',
+          subject: 'GradeRoom : Email Verification',
           html: `<p>Please verify your email by clicking the following link: <a href="${verificationLink}">Verify Email</a></p>`
         };
         try {
@@ -33,7 +35,7 @@ class mailService {
       const mailOptions = {
         from: process.env.EMAIL_USER,
         to: toEmail,
-        subject: 'Password Reset',
+        subject: 'GradeRoom : Password Reset',
         html: `<p>Please reset your password by using this token: <a href="${resetToken}">Reset Password</a></p>`
       };
       try {

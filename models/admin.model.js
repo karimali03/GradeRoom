@@ -1,7 +1,8 @@
+const mongoose  = require("mongoose");
 const User = require("./user.model")
 
 const adminSchema = new mongoose.Schema({
-    // Admin-specific fields can be added here
+     chekcer : { type: Boolean, default: false},
 });
 const Admin = User.discriminator('Admin', adminSchema);
 

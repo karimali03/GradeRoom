@@ -4,26 +4,20 @@ const UserController = require('../controllers/user.controller');
 const authController = require('../controllers/auth.controller');
 
 
-
+// register
+router.post('/signup', authController.signup );
+router.get('/verify-email' , authController.verifyEmail );
+// forget password
+router.post('/forget-password' , authController.forgetPassword );
+router.post('/reset-password' , authController.resetPassword );
+// sign in 
 router.post('/signin' , authController.signin );
 
-router.post('/forget-password' , authController.forgetPassword );
-
-router.post('/reset-password' , authController.resetPassword );
-
-router.get('/verify-email' , authController.verifyEmail );
-
-router.post('/change-password' , authController.changePassword );
-
-router.get('/', UserController.getAllUsers);
-
-router.get('/:id', UserController.getUserById);
-
-router.post('/signup', authController.signup );
-
-router.put('/:id', UserController.updateUser );
-
-router.delete('/:id', UserController.deleteUser);
+router.post('/change-password' ,authController.validateAuth , authController.changePassword );
+router.get('/', authController.validateAuth, authController.restrictTo("Admin") , UserController.getAllUsers);
+router.get('/:id',authController.validateAuth,UserController.getUserById);
+router.put('/:id',authController.validateAuth,authController.restrictTo("Admin","User"),UserController.updateUser );
+router.delete('/:id',authController.validateAuth,authController.restrictTo("Admin","User"),UserController.deleteUser);
 
 
 

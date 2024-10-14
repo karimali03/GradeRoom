@@ -11,9 +11,19 @@ const userBaseSchema = new mongoose.Schema({
 
 // General method to create a user
 userBaseSchema.statics.createUser = async function (userData) {
-    const newUser = new this(userData);
-    await newUser.save();
-    return newUser;
+   // Ensure that the role is valid
+   const validRoles = ['Admin', 'Teacher', 'Student'];
+   if (!validRoles.includes(userData.role)) {
+     throw new Error('Invalid role specified');
+   }
+ 
+   // Create a new user instance based on the role
+   const UserModel = this.discriminator(userData.role);
+   const newUser = new UserModel(userData); // Use the discriminator model
+ 
+   // Save the new user
+   await newUser.save();
+   return newUser;
 };
 
 // General method to retrieve all users
@@ -33,8 +43,8 @@ userBaseSchema.statics.getUserById = async function (userId) {
 };
 
 // General method to update a user
-userBaseSchema.methods.updateUserById = async function (updateData) {
-    return await this.constructor.updateOne({ _id: this._id }, updateData);
+userBaseSchema.statics.updateUserById = async function ( id , updateData) {
+    return await this.updateOne({ _id: id }, updateData);
 };
 
 // General method to delete a user

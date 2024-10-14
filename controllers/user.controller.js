@@ -1,5 +1,4 @@
 const User = require('../models/user.model');
-const bcrypt = require('../utils/bcrypt');
 const asyncFun = require('../middlewares/async.function');
 
 
@@ -21,11 +20,7 @@ class UserController  {
                 if(isExist) 
                 return res.status(400).send({ message: "email cannot be used"});
             }
-            if(req.body.password){
-                req.body.password = await bcrypt.hashPassword(req.body.password);
-            }
             const updatedUser = await User.updateUserById(req.params.id, req.body );
-            
             res.send({
                     message: "user is updated",
                     data: updatedUser

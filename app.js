@@ -12,6 +12,9 @@ const errorHandler = require('./middlewares/error.handler');
 
 const app = express();
 require('./config/database');
+require('./models/admin.model');
+require('./models/student.model');
+require('./models/teacher.model');
 const port =  process.env.PORT ||  3000;
 
 
