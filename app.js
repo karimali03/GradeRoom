@@ -8,13 +8,12 @@ const { default: helmet } = require('helmet');
 
 // Import routes
 const usersRoute = require('./routes/user.route');
+const tasksRoute = require('./routes/task.route');
+const submissionsRoute = require('./routes/submission.route'); 
 const errorHandler = require('./middlewares/error.handler');
 
 const app = express();
 require('./config/database');
-require('./models/admin.model');
-require('./models/student.model');
-require('./models/teacher.model');
 const port =  process.env.PORT ||  3000;
 
 
@@ -36,11 +35,12 @@ app.use(cors()); // Enable CORS
 
 
 // Custom middleware
-app.use('/api/v1/users', usersRoute)
 
 
 // Use routes
-
+app.use('/api/v1/user', usersRoute);
+app.use('/api/v1/task' , tasksRoute);
+app.use('/api/v1/submission', submissionsRoute)
 
 // error handling middleware
 app.use(errorHandler);

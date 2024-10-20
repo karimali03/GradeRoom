@@ -1,75 +1,91 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const bcrypt = require("../utils/bcrypt");
+const { Schema } = mongoose;
+const { v4: uuidv4 } = require('uuid');
 
-const userBaseSchema = new mongoose.Schema({
-    username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    isVerified : { type: Boolean, default: false},
-    password: { type: String, required: true },
-}, { discriminatorKey: 'role' }); // Specify the discriminator key
+
+// User Schema
+const userSchema = new Schema({
+  id: {
+    type: String,
+    default: uuidv4, 
+    unique: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  isVerified : {
+    type : Boolean,
+    default : false
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: String,
+    enum: ['Teacher', 'Student'],
+    default: 'Student' 
+  }
+}, { timestamps: true });
 
 
 // General method to create a user
-userBaseSchema.statics.createUser = async function (userData) {
-   // Ensure that the role is valid
-   const validRoles = ['Admin', 'Teacher', 'Student'];
-   if (!validRoles.includes(userData.role)) {
-     throw new Error('Invalid role specified');
-   }
+userSchema.statics.createUser = async function (userData) {
+      const user = new this(userData);
+      // Save the user to the database
+      await user.save();
+      return user;
+};
+  
  
-   // Create a new user instance based on the role
-   const UserModel = this.discriminator(userData.role);
-   const newUser = new UserModel(userData); // Use the discriminator model
+ // General method to retrieve all users
+ userSchema.statics.getAllUsers = async function () {
+     return await this.find( {} , { password: 0 });
+ };
  
-   // Save the new user
-   await newUser.save();
-   return newUser;
-};
-
-// General method to retrieve all users
-userBaseSchema.statics.getAllUsers = async function () {
-    return await this.find( {} , { password: 0 });
-};
-
-
-// General method to retrieve all users
-userBaseSchema.statics.getAllUsersByRole = async function (role) {
-    return await this.find({role : role}, { password: 0 });
-};
-
-// General method to retrieve a user by ID
-userBaseSchema.statics.getUserById = async function (userId) {
-    return await this.findById(userId, { password: 0 });
-};
-
-// General method to update a user
-userBaseSchema.statics.updateUserById = async function ( id , updateData) {
-    return await this.updateOne({ _id: id }, updateData);
-};
-
-// General method to delete a user
-userBaseSchema.statics.deleteUser = async function (userId) {
-    return await this.deleteOne({ _id: userId });
-};
-
-userBaseSchema.statics.getUserByemail = async function (email) {
-    return await this.findOne({ email });
-}
-
-
-userBaseSchema.statics.verifyEmail = async function (id) {
-    return await this.updateOne({ _id: id }, { isVerified: true });
-}
-
-userBaseSchema.methods.comparePassword = async function ( password ) {
-    const isMatch = bcrypt.comparePassword(password , this.password);
-    return isMatch;
-}
-
-
-
-
-// Create the User model based on the base schema
-const User = mongoose.model('User', userBaseSchema);
+ 
+ // General method to retrieve all users
+ userSchema.statics.getAllUsersByRole = async function (role) {
+     return await this.find({role : role}, { password: 0 });
+ };
+ 
+ // General method to retrieve a user by ID
+ userSchema.statics.getUserById = async function (userId) {
+     return await this.findOne( { id:  userId } , { password: 0 });
+ };
+ 
+ // General method to update a user
+ userSchema.statics.updateUserById = async function ( id , updateData) {
+     return await this.updateOne({ id: id }, updateData);
+ };
+ 
+ // General method to delete a user
+ userSchema.statics.deleteUser = async function (userId) {
+     return await this.deleteOne({ id: userId });
+ };
+ 
+ userSchema.statics.getUserByemail = async function (email) {
+     return await this.findOne({ email });
+ }
+ 
+ 
+ userSchema.statics.verifyEmail = async function (id) {
+     return await this.updateOne({ id: id }, { isVerified: true });
+ }
+ 
+ userSchema.methods.comparePassword = async function ( password ) {
+     const isMatch = bcrypt.comparePassword(password , this.password);
+     return isMatch;
+ }
+ 
+ 
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;

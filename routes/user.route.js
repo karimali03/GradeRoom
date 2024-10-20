@@ -11,13 +11,13 @@ router.get('/verify-email' , authController.verifyEmail );
 router.post('/forget-password' , authController.forgetPassword );
 router.post('/reset-password' , authController.resetPassword );
 // sign in 
-router.post('/signin' , authController.signin );
+router.post('/signin' , authController.signin);
 
 router.post('/change-password' ,authController.validateAuth , authController.changePassword );
-router.get('/', authController.validateAuth, authController.restrictTo("Admin") , UserController.getAllUsers);
-router.get('/:id',authController.validateAuth,UserController.getUserById);
-router.put('/:id',authController.validateAuth,authController.restrictTo("Admin","User"),UserController.updateUser );
-router.delete('/:id',authController.validateAuth,authController.restrictTo("Admin","User"),UserController.deleteUser);
+router.get('/', authController.validateAuth,authController.restrictTo("Teacher"),UserController.getAllUsers);
+router.get('/:id',authController.validateAuth,authController.restrictTo("Teacher","User"),UserController.getUserById);
+router.put('/:id',authController.validateAuth,authController.restrictTo("User"),UserController.updateUser );
+router.delete('/:id',authController.validateAuth,authController.restrictTo("Teacher","User"),UserController.deleteUser);
 
 
 

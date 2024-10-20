@@ -9,7 +9,7 @@ class UserController  {
     });
 
     static getUserById = asyncFun( async (req, res) => {
-            const user = await User.getUserById(req.params.id);
+            const user = await User.getUserById( req.params.id , {password:0} );
             if(user) res.send({ message: "user found", data : user });
             else res.send({ message: "user not found" , data : null}); 
     });
@@ -27,7 +27,7 @@ class UserController  {
             });
     });
     static deleteUser = asyncFun(async (req, res) => {
-            const user = await User.deleteUserById(req.params.id);
+            const user = await User.deleteUser(req.params.id);
             if(user) res.status(204).send({ message: "user is deleted", data: user });
             else res.status(400).send({ message: "user not found"});
     });

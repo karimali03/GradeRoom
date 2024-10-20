@@ -21,8 +21,8 @@ class authController {
 
         const mailer = new mailService();
         // Generate verification token (JWT)
-        const verificationToken = signToken(newUser._id);
-        const verificationLink = `${process.env.URL}/api/v1/users/verify-email?token=${verificationToken}`;
+        const verificationToken = signToken(newUser.id);
+        const verificationLink = `${process.env.URL}/api/v1/user/verify-email?token=${verificationToken}`;
         
         // Send verification email
         await mailer.sendVerificationEmail(email, verificationLink);
@@ -53,7 +53,7 @@ class authController {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).send({ message: 'Invalid credentials' });
 
-        const token = signToken(user._id, user.role);
+        const token = signToken(user.id, user.role);
         res.header('x-auth-token', token).send({ message: 'Sign in successful' });
     });
 
@@ -65,8 +65,8 @@ class authController {
         if (!user) return res.status(400).send({ message: 'User not found' });
 
         // Generate reset token
-        const resetToken = signToken(user._id);
-        const resetLink = `${process.env.URL}/api/v1/users/reset-password?token=${resetToken}`;
+        const resetToken = signToken(user.id);
+        const resetLink = `${process.env.URL}/api/v1/user/reset-password?token=${resetToken}`;
 
         const mailer = new mailService();
         await mailer.sendPasswordResetEmail(email, resetLink);
@@ -98,12 +98,12 @@ class authController {
     static changePassword = asyncFun(async (req, res) => {
         const { oldPassword, newPassword } = req.body;
 
-        const user = await User.getUserById(req.user._id);
+        const user = await User.getUserById(req.user.id);
         const isMatch = await user.comparePassword(oldPassword);
         if (!isMatch) return res.status(400).send({ message: 'Invalid credentials' });
 
         const hashedPassword = await bcrypt.hashPassword(newPassword);
-        await User.updateUserById(req.user._id, { password: hashedPassword });
+        await User.updateUserById(req.user.id, { password: hashedPassword });
 
         res.send({ message: 'Password changed successfully' });
     });
@@ -111,13 +111,13 @@ class authController {
     static restrictTo = (...roles) => {
         return asyncFun(async (req, res, next) => {
             console.log(roles);
-            console.log(req.user);
-            
-            if (!roles.includes(req.user.role) && !(roles.includes("User") && req.params.id === req.user._id)) {
-                return res.status(403).json({ 
+            console.log(req.user.role);
+            if ( !roles.includes(req.user.role) && !(roles.includes("User") &&  req.user.id === req.params.id )) {
+                return res.status(403).send({ 
                     message: "You do not have permission to perform this action" 
                 });
             }
+            console.log(req.body);
             next();
     })};
 
@@ -131,7 +131,6 @@ class authController {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             const userData = await User.getUserById(decoded.userId);
-            console.log(userData.role);
             req.user = userData;
             nxt(); 
         } catch (error) {
@@ -140,10 +139,7 @@ class authController {
             });
         }
     });
-
     
-
-
 }
 
 module.exports = authController;
